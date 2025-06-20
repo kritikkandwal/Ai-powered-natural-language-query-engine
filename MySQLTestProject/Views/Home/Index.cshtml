@@ -1,0 +1,42 @@
+﻿@{
+    ViewBag.Title = "NLP SQL Generator";
+}
+
+<div style="margin: 40px; font-family: Arial;">
+
+    <h1 style="color: #0066cc;">Natural Language to SQL Converter</h1>
+
+    <form method="post" asp-action="GenerateQuery" style="margin-bottom: 20px;">
+        <label><strong>Enter your query in English:</strong></label><br />
+        <input type="text" name="userInput" style="width: 400px; padding: 8px;" placeholder="e.g. Show employees between 1 and 100" /><br /><br />
+        <input type="submit" value="Generate SQL & Execute" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px;" />
+    </form>
+
+    @if (ViewBag.GeneratedQuery != null)
+    {
+        <h3 style="color: #333;">Generated SQL Query:</h3>
+        <p style="color: #555;">@ViewBag.GeneratedQuery</p>
+
+        @if (ViewBag.Result != null && ViewBag.Result.Count > 0)
+        {
+            <h3 style="color: #333;">Result:</h3>
+            <table border="1" cellpadding="8" style="border-collapse: collapse; width: 400px;">
+                <tr style="background-color: #f2f2f2;">
+                    <th>EmpID</th>
+                    <th>Salary</th>
+                </tr>
+                @foreach (var row in ViewBag.Result)
+                {
+                    <tr>
+                        <td>@row.EmpID</td>
+                        <td>@row.Salary</td>
+                    </tr>
+                }
+            </table>
+        }
+        else
+        {
+            <p>No records found.</p>
+        }
+    }
+</div>
