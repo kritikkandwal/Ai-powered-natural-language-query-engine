@@ -3,40 +3,90 @@
 }
 
 <div style="margin: 40px; font-family: Arial;">
-
     <h1 style="color: #0066cc;">Natural Language to SQL Converter</h1>
 
-    <form method="post" asp-action="GenerateQuery" style="margin-bottom: 20px;">
+    <form method="post" asp-action="GenerateQuery" id="queryForm"
+          style="margin-bottom: 20px;">
         <label><strong>Enter your query in English:</strong></label><br />
-        <input type="text" name="userInput" style="width: 400px; padding: 8px;" placeholder="e.g. Show employees between 1 and 100" /><br /><br />
-        <input type="submit" value="Generate SQL & Execute" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px;" />
+        <input type="text" name="userInput" id="userInput"
+               style="width: 400px; padding: 8px;"
+               placeholder="e.g. Show employees earning more than 50000" required /><br /><br />
+        <input type="submit" value="Generate SQL & Execute"
+               style="padding: 10px 20px; background-color: #28a745;
+               color: white; border: none; border-radius: 5px;" />
     </form>
 
-    @if (ViewBag.GeneratedQuery != null)
-    {
-        <h3 style="color: #333;">Generated SQL Query:</h3>
-        <p style="color: #555;">@ViewBag.GeneratedQuery</p>
+    <div id="loading" style="display: none; color: #0066cc; margin-bottom: 20px;">
+        <p>Generating SQL with AI... <i class="fa fa-spinner fa-spin"></i></p>
+    </div>
 
-        @if (ViewBag.Result != null && ViewBag.Result.Count > 0)
-        {
-            <h3 style="color: #333;">Result:</h3>
-            <table border="1" cellpadding="8" style="border-collapse: collapse; width: 400px;">
-                <tr style="background-color: #f2f2f2;">
-                    <th>EmpID</th>
-                    <th>Salary</th>
-                </tr>
-                @foreach (var row in ViewBag.Result)
-                {
-                    <tr>
-                        <td>@row.EmpID</td>
-                        <td>@row.Salary</td>
-                    </tr>
-                }
-            </table>
-        }
-        else
-        {
-            <p>No records found.</p>
-        }
+@if (ViewBag.GeneratedQuery != null)
+{
+        <div id="results">
+            <h3 style="color: #333;">Generated SQL Query:</h3>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px;
+                                border: 1px solid #ddd; max-width: 800px; overflow-x: auto;">
+    @ViewBag.GeneratedQuery</pre>
+
+            <!-- Show Model API Error -->
+            @if (!string.IsNullOrEmpty(ViewBag.ModelError))
+            {
+                <div style="color: #d9534f; padding: 10px; border: 1px solid #f2dede;
+                                    background-color: #f2dede; border-radius: 5px; margin: 15px 0;">
+                    <strong>Model Error:</strong> @ViewBag.ModelError
+                </div>
+            }
+
+            <!-- Show Execution Error -->
+            @if (!string.IsNullOrEmpty(ViewBag.ExecutionError))
+            {
+                <div style="color: #d9534f; padding: 10px; border: 1px solid #f2dede;
+                                    background-color: #f2dede; border-radius: 5px; margin: 15px 0;">
+                    <strong>Execution Error:</strong> @ViewBag.ExecutionError
+                </div>
+            }
+
+            <!-- If result exists -->
+            @if (ViewBag.Result != null && ViewBag.Result.Count > 0)
+            {
+                <h3 style="color: #333; margin-top: 20px;">Result:</h3>
+                <table border="1" cellpadding="8"
+                       style="border-collapse: collapse; width: 100%; max-width: 600px;">
+                    <thead style="background-color: #f2f2f2;">
+                        <tr>
+                            <th>EmpID</th>
+                            <th>Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in ViewBag.Result)
+                        {
+                            <tr>
+                                <td>@row.EmpID</td>
+                                <td>@row.Salary.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p style="margin-top: 10px; color: #666;">
+                    Showing @ViewBag.Result.Count records
+                </p>
+            }
+            else if (string.IsNullOrEmpty(ViewBag.ModelError) && string.IsNullOrEmpty(ViewBag.ExecutionError))
+            {
+                <p style="color: #d9534f; font-weight: bold;">No records found.</p>
+            }
+        </div>
+}
     }
-</div>
+
+@section Scripts {
+        <script>
+            document.getElementById("queryForm").addEventListener("submit", function() {
+                document.getElementById("loading").style.display = "block";
+                if (document.getElementById("results")) {
+                    document.getElementById("results").style.display = "none";
+                }
+            });
+        </script>
+}

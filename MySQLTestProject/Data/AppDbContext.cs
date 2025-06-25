@@ -11,10 +11,14 @@ namespace MySQLTestProject.Data
 
         public DbSet<Employee> Employees { get; set; }
 
-        // 👇 Add this method *inside* AppDbContext class
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Employee>().ToTable("employee"); // <-- exact match with MySQL
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.ToTable("Employee");
+                entity.Property(e => e.EmpID).HasColumnName("EmpID");
+                entity.Property(e => e.Salary).HasColumnName("Salary");
+            });
         }
     }
 
